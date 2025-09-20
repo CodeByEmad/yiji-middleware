@@ -1,12 +1,13 @@
 const express = require("express");
 const axios = require("axios");
-const bodyParser = require("body-parser");
 const cors = require("cors");
-require('dotenv').config();
+require("dotenv").config();
 
 const app = express();
+
+// Middleware
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json()); // 👈 replaces body-parser
 
 // 🔒 API key check for security
 app.use((req, res, next) => {
@@ -46,11 +47,11 @@ app.post("/getOrderStatus", async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error.message);
+    console.error("API error:", error.message);
     res.status(500).json({ success: false, error: "Failed to fetch order details" });
   }
 });
 
 app.listen(3000, () => {
-  console.log("Middleware server running on port 3000");
+  console.log("✅ Middleware server running on port 3000");
 });
