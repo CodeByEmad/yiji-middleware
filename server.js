@@ -52,6 +52,8 @@ app.post("/getOrderStatus", async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log("✅ Middleware server running on port 3000");
-});
+module.exports = app;
+
+// app.listen(3000, () => {
+//   console.log("✅ Middleware server running on port 3000");
+// });
