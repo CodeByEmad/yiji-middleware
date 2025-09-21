@@ -3,11 +3,11 @@ const axios = require("axios");
 const cors = require("cors");
 require("dotenv").config();
 
-const app = express();
 
-// Middleware
+const app = express();
 app.use(cors());
-app.use(express.json()); // 👈 replaces body-parser
+
+console.log("RETELL_API_KEY =", process.env.RETELL_API_KEY);
 
 // 🔒 API key check for security
 app.use((req, res, next) => {
