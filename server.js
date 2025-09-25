@@ -77,21 +77,23 @@ app.use((req, res, next) => {
 });
 
 app.post('/getOrderStatus', async (req, res) => {
-  const args = req.body.args || req.body;
-  const { orderId, phoneNumber } = args;
-
-  if (!orderId && !phoneNumber) {
-    return res.status(400).json({ error: "orderId or phoneNumber required" });
-  }
+  const { orderId, phoneNumber } = req.body;
 
   try {
-    const apiUrl = orderId
-      ? `https://mobileapi.yiji-app.com/api/Order/GetOrderDetailsByOrderId/${orderId}`
-      : `https://mobileapi.yiji-app.com/api/Order/GetOrderDetailsByPhoneNumber/${phoneNumber}`;
+    let apiUrl = "";
+
+    if (orderId) {
+      apiUrl = `https://mobileapi.yiji-app.com/api/Order/GetOrderDetailsByOrderId/${orderId}`;
+    } else if (phoneNumber) {
+      apiUrl = `https://mobileapi.yiji-app.com/api/Order/GetOrderDetailsByPhoneNumber/${phoneNumber}`;
+    } else {
+      return res.status(400).json({ error: "orderId or phoneNumber required" });
+    }
 
     const response = await axios.get(apiUrl);
-    const data = response.data;
 
+    // Format response for Retell
+    const data = response.data;
     res.json({
       success: true,
       status: data?.OrderStatus || "Unknown",
@@ -100,16 +102,11 @@ app.post('/getOrderStatus', async (req, res) => {
       estimatedDeliveryTime: data?.EstimatedDeliveryTime,
       raw: data
     });
+
   } catch (error) {
-    console.error("API error:", error?.response?.data || error.message);
-    res.status(500).json({
-      success: false,
-      error: "Failed to fetch order details",
-      error_message: error.message,
-      error_data: error?.response?.data
-    });
+    console.error("API error:", error.message);
+    res.status(500).json({ success: false, error: "Failed to fetch order details" });
   }
 });
 
-// Remove app.listen() for Vercel
 module.exports = app;
