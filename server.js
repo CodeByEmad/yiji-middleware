@@ -6,20 +6,13 @@ require("dotenv").config();
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 console.log("retell_api_key =", process.env.RETELL_API_KEY);
 
 // 🔒 API key check for security
-// 🔒 API key check for security
 app.use((req, res, next) => {
-  const headerKey = req.headers["retell_api_key"]; // headers are always lowercase
-  const queryKey = req.query.apiKey;
-
-  const apiKey = headerKey || queryKey; // allow either header or query param
-
-  console.log("Received key:", apiKey);
-  console.log("Expected key:", process.env.RETELL_API_KEY); // use uppercase in env
-
+  const apiKey = req.headers["retell_api_key"];
   if (apiKey !== process.env.RETELL_API_KEY) {
     return res.status(403).json({ error: "Forbidden" });
   }
