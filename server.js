@@ -59,26 +59,24 @@
 // // });
 
 
-
-const express = require("express");
-const axios = require("axios");
-const cors = require("cors");
-require("dotenv").config();
+const express = require('express');
+const axios = require('axios');
+const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Security middleware
 app.use((req, res, next) => {
-  const apiKey = req.headers["retell_api_key"];
+  const apiKey = req.headers['retell_api_key'];
   if (!apiKey || apiKey !== process.env.RETELL_API_KEY) {
-    return res.status(403).json({ error: "Forbidden" });
+    return res.status(403).json({ error: 'Forbidden' });
   }
   next();
 });
 
-app.post("/", async (req, res) => { // note endpoint is now just '/', since file path is /api/getOrderStatus.js
+app.post('/getOrderStatus', async (req, res) => {
   const args = req.body.args || req.body;
   const { orderId, phoneNumber } = args;
 
@@ -113,4 +111,5 @@ app.post("/", async (req, res) => { // note endpoint is now just '/', since file
   }
 });
 
+// Remove app.listen() for Vercel
 module.exports = app;
