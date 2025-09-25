@@ -7,11 +7,19 @@ require("dotenv").config();
 const app = express();
 app.use(cors());
 
-console.log("RETELL_API_KEY =", process.env.RETELL_API_KEY);
+console.log("retell_api_key =", process.env.RETELL_API_KEY);
 
 // 🔒 API key check for security
+// 🔒 API key check for security
 app.use((req, res, next) => {
-  const apiKey = req.headers["x-api-key"];
+  const headerKey = req.headers["retell_api_key"]; // headers are always lowercase
+  const queryKey = req.query.apiKey;
+
+  const apiKey = headerKey || queryKey; // allow either header or query param
+
+  console.log("Received key:", apiKey);
+  console.log("Expected key:", process.env.RETELL_API_KEY); // use uppercase in env
+
   if (apiKey !== process.env.RETELL_API_KEY) {
     return res.status(403).json({ error: "Forbidden" });
   }
@@ -52,8 +60,8 @@ app.post("/getOrderStatus", async (req, res) => {
   }
 });
 
-module.exports = app;
+// module.exports = app;
 
-// app.listen(3000, () => {
-//   console.log("✅ Middleware server running on port 3000");
-// });
+app.listen(3000, () => {
+  console.log("✅ Middleware server running on port 3000");
+});
