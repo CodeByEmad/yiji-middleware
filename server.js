@@ -8,11 +8,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-console.log("retell_api_key =", process.env.RETELL_API_KEY);
+console.log("RETELL_API_KEY =", process.env.RETELL_API_KEY);
 
 // 🔒 API key check for security
 app.use((req, res, next) => {
   const apiKey = req.headers["retell_api_key"];
+  console.log('Received API key:', apiKey);
   if (apiKey !== process.env.RETELL_API_KEY) {
     return res.status(403).json({ error: "Forbidden" });
   }
@@ -21,7 +22,13 @@ app.use((req, res, next) => {
 
 // Endpoint for Retell to call
 app.post("/getOrderStatus", async (req, res) => {
-  const { orderId, phoneNumber } = req.body;
+  // Accept both direct and 'args' payload for compatibility
+  const args = req.body.args || req.body;
+  const { orderId, phoneNumber } = args;
+
+  console.log('Received body:', req.body);
+
+  // const { orderId, phoneNumber } = req.body;
 
   try {
     let apiUrl = "";
@@ -47,14 +54,29 @@ app.post("/getOrderStatus", async (req, res) => {
       raw: data
     });
 
-  } catch (error) {
-    console.error("API error:", error.message);
-    res.status(500).json({ success: false, error: "Failed to fetch order details" });
+  } 
+  // catch (error) {
+  //   console.error("API error:", error.message);
+  //   res.status(500).json({ success: false, error: "Failed to fetch order details" });
+  // }
+
+  catch (error) {
+    // Surface error message and data for debugging
+    console.error("API error:", error?.response?.data || error.message);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch order details",
+      error_message: error.message,
+      error_data: error?.response?.data
+    });
   }
 });
 
 module.exports = app;
 
-// app.listen(3000, () => {
-//   console.log("✅ Middleware server running on port 3000");
-// });
+
+if (process.env.LOCAL_DEV) {
+app.listen(3000, () => {
+  console.log("✅ Middleware server running on port 3000");
+});
+}
