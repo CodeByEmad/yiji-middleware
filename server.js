@@ -6,6 +6,8 @@ require("dotenv").config();
 
 const app = express();
 app.use(cors());
+app.use(express.json());
+
 
 console.log("RETELL_API_KEY =", process.env.RETELL_API_KEY);
 
@@ -48,9 +50,16 @@ app.post("/getOrderStatus", async (req, res) => {
 
   } catch (error) {
     console.error("API error:", error.message);
-    res.status(500).json({ success: false, error: "Failed to fetch order details" });
-  }
+    console.error("API error:", error.message, error.response?.data);
+  res.status(500).json({ 
+    success: false, 
+    error: error.message, 
+    details: error.response?.data || null 
+    // res.status(500).json({ success: false, error: "Failed to fetch order details" });
+  });
+}
 });
+// });
 
 module.exports = app;
 
