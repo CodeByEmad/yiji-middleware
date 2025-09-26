@@ -12,13 +12,25 @@ app.use(express.json());
 console.log("RETELL_API_KEY =", process.env.RETELL_API_KEY);
 
 // 🔒 API key check for security
+
 app.use((req, res, next) => {
+  console.log("Header retell_api_key:", req.headers["retell_api_key"]);
+  console.log("Env RETELL_API_KEY:", process.env.RETELL_API_KEY);
   const apiKey = req.headers["retell_api_key"];
   if (apiKey !== process.env.RETELL_API_KEY) {
     return res.status(403).json({ error: "Forbidden" });
   }
   next();
 });
+
+
+// app.use((req, res, next) => {
+//   const apiKey = req.headers["retell_api_key"];
+//   if (apiKey !== process.env.RETELL_API_KEY) {
+//     return res.status(403).json({ error: "Forbidden" });
+//   }
+//   next();
+// });
 
 // Endpoint for Retell to call
 app.post("/getOrderStatus", async (req, res) => {
@@ -48,22 +60,19 @@ app.post("/getOrderStatus", async (req, res) => {
       raw: data
     });
 
-  } catch (error) {
-    console.error("API error:", error.message);
-    console.error("API error:", error.message, error.response?.data);
-  res.status(500).json({ 
-    success: false, 
-    error: error.message, 
-    details: error.response?.data || null 
-    // res.status(500).json({ success: false, error: "Failed to fetch order details" });
-  });
+    } catch (error) {
+  console.error("API error:", error.message, error.response?.data);
+  res.status(500).json({ success: false, error: error.message, details: error.response?.data || null });
 }
+
+  // } catch (error) {
+  //   console.error("API error:", error.message);
+  //   res.status(500).json({ success: false, error: "Failed to fetch order details" });
+  // }
 });
-// });
 
 module.exports = app;
 
-// ✅ Run locally if not in Vercel
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
