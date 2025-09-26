@@ -63,6 +63,10 @@ app.post("/getOrderStatus", async (req, res) => {
 
 module.exports = app;
 
-// app.listen(3000, () => {
-//   console.log("✅ Middleware server running on port 3000");
-// });
+// ✅ Run locally if not in Vercel
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`✅ Middleware server running locally on port ${PORT}`);
+  });
+}
